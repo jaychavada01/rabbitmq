@@ -1,0 +1,23 @@
+{
+  "name": "email-service",
+  "version": "1.0.0",
+  "description": "Email Service - RabbitMQ Consumer Microservice",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "rabbitmq",
+    "microservices",
+    "consumer",
+    "email"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2"
+  }
+}
