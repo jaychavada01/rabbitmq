@@ -22,10 +22,6 @@ const {
   MESSAGE_OPTIONS,
 } = require('./constants');
 
-// ============================================================================
-// PUBLISHER FUNCTIONS
-// ============================================================================
-
 /**
  * Publish a message to RabbitMQ
  * 
@@ -56,25 +52,21 @@ async function publishMessage(exchangeConfig, queueConfig, routingKey, message) 
     // Get channel instance
     const channel = await getChannel();
 
-    // ========================================================================
     // STEP 1: Assert Dead Letter Exchange (DLX)
-    // ========================================================================
     // The DLX receives messages that are rejected or fail processing
     await channel.assertExchange(
       EXCHANGES.DEAD_LETTER_EXCHANGE.name,
       EXCHANGES.DEAD_LETTER_EXCHANGE.type,
       EXCHANGES.DEAD_LETTER_EXCHANGE.options
     );
-    console.log(`[Publisher] ✓ DLX asserted: ${EXCHANGES.DEAD_LETTER_EXCHANGE.name}`);
+    console.log(`[Publisher] DLX asserted: ${EXCHANGES.DEAD_LETTER_EXCHANGE.name}`);
 
-    // ========================================================================
     // STEP 2: Assert Dead Letter Queue (DLQ)
-    // ========================================================================
     // Find the corresponding DLQ for this queue
     const dlqConfig = findDLQForQueue(queueConfig.name);
     if (dlqConfig) {
       await channel.assertQueue(dlqConfig.name, dlqConfig.options);
-      console.log(`[Publisher] ✓ DLQ asserted: ${dlqConfig.name}`);
+      console.log(`[Publisher] DLQ asserted: ${dlqConfig.name}`);
 
       // Bind DLQ to DLX
       const dlqRoutingKey = queueConfig.options.arguments['x-dead-letter-routing-key'];
@@ -84,41 +76,33 @@ async function publishMessage(exchangeConfig, queueConfig, routingKey, message) 
         dlqRoutingKey
       );
       console.log(
-        `[Publisher] ✓ DLQ bound to DLX with routing key: ${dlqRoutingKey}`
+        `[Publisher] DLQ bound to DLX with routing key: ${dlqRoutingKey}`
       );
     }
 
-    // ========================================================================
     // STEP 3: Assert Main Exchange
-    // ========================================================================
     await channel.assertExchange(
       exchangeConfig.name,
       exchangeConfig.type,
       exchangeConfig.options
     );
-    console.log(`[Publisher] ✓ Exchange asserted: ${exchangeConfig.name}`);
+    console.log(`[Publisher] Exchange asserted: ${exchangeConfig.name}`);
 
-    // ========================================================================
     // STEP 4: Assert Main Queue
-    // ========================================================================
     await channel.assertQueue(queueConfig.name, queueConfig.options);
-    console.log(`[Publisher] ✓ Queue asserted: ${queueConfig.name}`);
+    console.log(`[Publisher] Queue asserted: ${queueConfig.name}`);
 
-    // ========================================================================
     // STEP 5: Bind Queue to Exchange
-    // ========================================================================
     await channel.bindQueue(
       queueConfig.name,
       exchangeConfig.name,
       routingKey
     );
     console.log(
-      `[Publisher] ✓ Queue bound to exchange with routing key: ${routingKey}`
+      `[Publisher] Queue bound to exchange with routing key: ${routingKey}`
     );
 
-    // ========================================================================
     // STEP 6: Serialize Message
-    // ========================================================================
     let messageBuffer;
     try {
       const messageString = JSON.stringify(message);
@@ -127,9 +111,7 @@ async function publishMessage(exchangeConfig, queueConfig, routingKey, message) 
       throw new Error(`Failed to serialize message: ${error.message}`);
     }
 
-    // ========================================================================
     // STEP 7: Publish Message
-    // ========================================================================
     const published = channel.publish(
       exchangeConfig.name,
       routingKey,
@@ -139,23 +121,19 @@ async function publishMessage(exchangeConfig, queueConfig, routingKey, message) 
 
     if (published) {
       console.log(
-        `[Publisher] ✓ Message published to exchange: ${exchangeConfig.name}, routing key: ${routingKey}`
+        `[Publisher] Message published to exchange: ${exchangeConfig.name}, routing key: ${routingKey}`
       );
       console.log('[Publisher] Message payload:', message);
       return true;
     } else {
-      console.warn('[Publisher] ⚠ Message could not be published (buffer full)');
+      console.warn('[Publisher] Message could not be published (buffer full)');
       return false;
     }
   } catch (error) {
-    console.error('[Publisher] ✗ Failed to publish message:', error.message);
+    console.error('[Publisher] Failed to publish message:', error.message);
     throw error;
   }
 }
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
 
 /**
  * Find the DLQ configuration for a given queue

@@ -50,25 +50,17 @@ async function sendOrderConfirmationEmail(orderData) {
       throw new Error('Invalid email address');
     }
 
-    console.log('[Email Service] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[Email Service] 📧 Preparing to send email...');
-    console.log('[Email Service] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[Email Service] Preparing to send email...');
     console.log('[Email Service] To:', customerEmail);
     console.log('[Email Service] Subject: Order Confirmation - Order #' + orderId);
-    console.log('[Email Service] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // ========================================================================
     // STEP 2: Prepare Email Content
-    // ========================================================================
     const emailContent = generateEmailContent(orderData);
     
     console.log('[Email Service] Email Content:');
     console.log(emailContent);
-    console.log('[Email Service] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // ========================================================================
     // STEP 3: Send Email (Simulated)
-    // ========================================================================
     // In production, replace this with actual email service integration:
     // - SendGrid: await sgMail.send(emailData)
     // - AWS SES: await ses.sendEmail(params).promise()
@@ -86,21 +78,13 @@ async function sendOrderConfirmationEmail(orderData) {
     }
 
     console.log('[Email Service] ✓ Email sent successfully!');
-    console.log('[Email Service] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-
     return true;
   } catch (error) {
     console.error('[Email Service] ✗ Failed to send email:', error.message);
-    console.error('[Email Service] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
-    
     // Return false to indicate failure (message will be nack'd and sent to DLQ)
     return false;
   }
 }
-
-// ============================================================================
-// HELPER FUNCTIONS
-// ============================================================================
 
 /**
  * Generate email content from order data
@@ -150,10 +134,6 @@ The Example Store Team
 ╚════════════════════════════════════════════════════════════╝
   `;
 }
-
-// ============================================================================
-// EXPORTS
-// ============================================================================
 
 module.exports = {
   sendOrderConfirmationEmail,

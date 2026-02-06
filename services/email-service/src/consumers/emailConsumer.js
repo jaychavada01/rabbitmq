@@ -18,10 +18,6 @@ const {
 } = require('../rabbitmq/constants');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
 
-// ============================================================================
-// CONSUMER SETUP
-// ============================================================================
-
 /**
  * Start the email consumer
  * 
@@ -33,13 +29,9 @@ const { sendOrderConfirmationEmail } = require('../services/emailService');
  */
 async function startEmailConsumer() {
   try {
-    console.log('[Email Consumer] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('[Email Consumer] 🎧 Starting email consumer...');
-    console.log('[Email Consumer] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('[Email Consumer] Starting email consumer...');
 
-    // ========================================================================
     // Start consuming messages from the email queue
-    // ========================================================================
     await consumeMessages(
       EXCHANGES.ORDER_EXCHANGE,
       QUEUES.EMAIL_QUEUE,
@@ -55,10 +47,6 @@ async function startEmailConsumer() {
     throw error;
   }
 }
-
-// ============================================================================
-// MESSAGE PROCESSING
-// ============================================================================
 
 /**
  * Process an order message
@@ -81,18 +69,14 @@ async function processOrderMessage(message) {
     console.log('[Email Consumer] Customer Email:', message.customerEmail);
     console.log('[Email Consumer] ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    // ========================================================================
     // STEP 1: Validate Message
-    // ========================================================================
     if (message.eventType !== 'order.created') {
       console.warn('[Email Consumer] ⚠ Unexpected event type:', message.eventType);
       // Return false to send to DLQ for manual inspection
       return false;
     }
 
-    // ========================================================================
     // STEP 2: Send Email
-    // ========================================================================
     const emailSent = await sendOrderConfirmationEmail(message);
 
     if (emailSent) {
@@ -110,10 +94,6 @@ async function processOrderMessage(message) {
     return false;
   }
 }
-
-// ============================================================================
-// EXPORTS
-// ============================================================================
 
 module.exports = {
   startEmailConsumer,
